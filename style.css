@@ -1,16 +1,16 @@
 /* Tasarım: siyah-beyaz, sade, cam görünüm (dogukaska.github.io ile aynı değişkenler) */
 :root {
-  --bg: #f2f2f2; --ink: #0a0a0a; --mute: #6e6e6e; --line: rgba(0,0,0,.1);
-  --glass: rgba(255,255,255,.55); --glass-edge: rgba(255,255,255,.85); --shadow: 0 8px 28px rgba(0,0,0,.07);
-  --solid: #0a0a0a; --solid-ink: #fff; --soft: rgba(0,0,0,.05);
-  --halo-a: #ffffff; --halo-b: #d9d9d9; --r: 18px;
+  --bg: #efede8; --ink: #2e3033; --mute: #75736e; --line: rgba(0,0,0,.1);
+  --glass: rgba(250,249,246,.55); --glass-edge: rgba(250,249,246,.85); --shadow: 0 8px 28px rgba(0,0,0,.07);
+  --solid: #2e3033; --solid-ink: #faf9f6; --soft: rgba(0,0,0,.05);
+  --halo-a: #faf9f6; --halo-b: #dcd9d3; --r: 18px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0a0a; --ink: #f4f4f4; --mute: #8f8f8f; --line: rgba(255,255,255,.12);
+    --bg: #1f2022; --ink: #ecebe7; --mute: #9b9993; --line: rgba(255,255,255,.12);
     --glass: rgba(255,255,255,.06); --glass-edge: rgba(255,255,255,.14); --shadow: 0 8px 28px rgba(0,0,0,.5);
-    --solid: #f4f4f4; --solid-ink: #0a0a0a; --soft: rgba(255,255,255,.07);
-    --halo-a: #262626; --halo-b: #0a0a0a;
+    --solid: #ecebe7; --solid-ink: #2a2c2f; --soft: rgba(255,255,255,.07);
+    --halo-a: #36383b; --halo-b: #1f2022;
   }
 }
 * { box-sizing: border-box; }
@@ -78,9 +78,9 @@ button:disabled { opacity: .5; cursor: default; }
 .viewer .seg { position: absolute; top: 10px; left: 10px; z-index: 2; background: var(--glass); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .stage { border-radius: var(--r); border: 1px solid var(--glass-edge); display: flex; justify-content: center; align-items: center; min-height: 240px; overflow: hidden; }
 .stage canvas { max-width: 100%; max-height: 65vh; display: block; }
-.checker { background-color: #fff; background-image:
-  linear-gradient(45deg, #ececec 25%, transparent 25%), linear-gradient(-45deg, #ececec 25%, transparent 25%),
-  linear-gradient(45deg, transparent 75%, #ececec 75%), linear-gradient(-45deg, transparent 75%, #ececec 75%);
+.checker { background-color: #f7f6f3; background-image:
+  linear-gradient(45deg, #e6e4df 25%, transparent 25%), linear-gradient(-45deg, #e6e4df 25%, transparent 25%),
+  linear-gradient(45deg, transparent 75%, #e6e4df 75%), linear-gradient(-45deg, transparent 75%, #e6e4df 75%);
   background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0; }
 
 .files { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
