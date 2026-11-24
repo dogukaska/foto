@@ -2,6 +2,9 @@ import { decode, encode, FORMATS, baseName, fmtSize, download, makeCanvas } from
 import { removeBackground, withBackground, trimToSubject } from "./lib/bg.js";
 
 const $ = (id) => document.getElementById(id);
+const svg = (p) => `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const ICON_DL = svg('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>');
+const ICON_X = svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
 
 // ---------- Sekmeler
 document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
@@ -175,7 +178,7 @@ function typeLabel(f) {
 function cvAdd(files) {
   for (const f of files) {
     const li = document.createElement("li");
-    li.innerHTML = `<div class="thumb">🖼️</div><div class="meta"><div class="name"></div><div class="info"></div></div><button class="dl hidden">⬇️ İndir</button><button class="x" title="Listeden çıkar">✕</button>`;
+    li.innerHTML = `<div class="thumb"></div><div class="meta"><div class="name"></div><div class="info"></div></div><button class="dl hidden">${ICON_DL} İndir</button><button class="x" title="Listeden çıkar">${ICON_X}</button>`;
     li.querySelector(".name").textContent = f.name;
     const item = { id: ++uid, file: f, li, out: null };
     li.querySelector(".info").textContent = `${typeLabel(f)} · ${fmtSize(f.size)}`;
@@ -202,7 +205,7 @@ function cvButtons() {
   $("cv-actions").classList.toggle("hidden", !any);
   $("cv-go").classList.toggle("hidden", allDone);
   $("cv-all").classList.toggle("hidden", !allDone);
-  $("cv-all").textContent = cv.items.length > 1 ? "⬇️ Hepsini indir (ZIP)" : "⬇️ İndir";
+  $("cv-all").innerHTML = ICON_DL + (cv.items.length > 1 ? " Hepsini indir (ZIP)" : " İndir");
 }
 
 function uniqueNames(items) {
