@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foto Araçları — arka plan silme ve format dönüştürme</title>
+<meta name="description" content="Fotoğrafın arka planını sil, HEIC'i JPG'ye çevir. Her şey tarayıcında, dosyaların hiçbir yere yüklenmez.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+<link rel="stylesheet" href="style.css">
+<script src="vendor/jszip.min.js" defer></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header>
+  <h1>Foto Araçları</h1>
+  <p class="sub">Dosyaların hiçbir yere yüklenmez, her şey bu cihazda yapılır.</p>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="bg" role="tab">✂️ Arka planı sil</button>
+    <button class="tab" data-tab="conv" role="tab">🔄 Format dönüştür</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ARKA PLAN SİLME -->
+  <section id="tab-bg" class="panel">
+    <label class="drop" id="bg-drop">
+      <input type="file" id="bg-file" accept="image/*,.heic,.heif" hidden>
+      <span class="drop-icon">🖼️</span>
+      <strong>Fotoğraf seç ya da buraya sürükle</strong>
+      <span class="hint">JPG, PNG, WebP, HEIC (iPhone)…</span>
+    </label>
+
+    <div id="bg-work" class="card hidden">
+      <div class="status">
+        <div class="spinner"></div>
+        <div>
+          <div id="bg-status">Hazırlanıyor…</div>
+          <div class="bar"><div id="bg-bar"></div></div>
+          <div class="hint" id="bg-note"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bg-result" class="hidden">
+      <div class="viewer">
+        <div class="seg small" id="bg-view">
+          <button data-v="before">Önce</button>
+          <button data-v="after" class="on">Sonra</button>
+        </div>
+        <div class="stage checker"><canvas id="bg-canvas"></canvas></div>
+      </div>
+
+      <div class="card opts">
+        <div class="row">
+          <span class="lbl">Arka plan</span>
+          <div class="seg" id="bg-color">
+            <button data-c="" class="on">Şeffaf</button>
+            <button data-c="#ffffff">Beyaz</button>
+            <button data-c="#000000">Siyah</button>
+            <label class="colorbtn" title="Başka renk"><input type="color" id="bg-custom" value="#f2c94c"><span>Renk</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Kenarlar</span>
+          <label class="check"><input type="checkbox" id="bg-trim"> Boşlukları kırp</label>
+        </div>
+        <div class="row">
+          <span class="lbl">Biçim</span>
+          <div class="seg" id="bg-fmt">
+            <button data-f="png" class="on">PNG</button>
+            <button data-f="webp">WebP</button>
+            <button data-f="jpg">JPG</button>
+          </div>
+        </div>
+        <p class="hint" id="bg-fmt-note">PNG şeffaflığı korur, kalite kaybı olmaz.</p>
+        <div class="actions">
+          <button class="primary" id="bg-download">⬇️ İndir</button>
+          <button id="bg-again">Başka fotoğraf</button>
+        </div>
+        <p class="hint" id="bg-info"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMAT DÖNÜŞTÜRME -->
+  <section id="tab-conv" class="panel hidden">
+    <label class="drop" id="cv-drop">
+      <input type="file" id="cv-file" accept="image/*,.heic,.heif" multiple hidden>
+      <span class="drop-icon">🗂️</span>
+      <strong>Fotoğrafları seç ya da buraya sürükle</strong>
+      <span class="hint">Birden fazla seçebilirsin · HEIC, JPG, PNG, WebP, GIF, BMP, AVIF</span>
+    </label>
+
+    <div class="card opts">
+      <div class="row">
+        <span class="lbl">Yeni biçim</span>
+        <div class="seg" id="cv-fmt">
+          <button data-f="jpg" class="on">JPG</button>
+          <button data-f="png">PNG</button>
+          <button data-f="webp">WebP</button>
+        </div>
+      </div>
+      <div class="row" id="cv-q-row">
+        <span class="lbl">Kalite</span>
+        <select id="cv-q">
+          <option value="1">En yüksek (%100, büyük dosya)</option>
+          <option value="0.95" selected>Çok yüksek (%95, önerilen)</option>
+          <option value="0.9">Yüksek (%90)</option>
+          <option value="0.8">Küçük dosya (%80)</option>
+        </select>
+      </div>
+      <p class="hint" id="cv-note">JPG her yerde açılır. Şeffaf alanlar beyaz olur.</p>
+    </div>
+
+    <ul id="cv-list" class="files"></ul>
+
+    <div class="actions hidden" id="cv-actions">
+      <button class="primary" id="cv-go">Dönüştür</button>
+      <button class="primary hidden" id="cv-all">⬇️ Hepsini indir</button>
+      <button id="cv-clear">Temizle</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Açık kaynak · <a href="https://github.com/dogukaska/foto">GitHub</a></p>
+</footer>
+</body>
+</html>
