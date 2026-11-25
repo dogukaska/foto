@@ -1,4 +1,4 @@
-import { decode, encode, FORMATS, baseName, fmtSize, download, makeCanvas } from "./lib/image.js";
+import { decode, encode, FORMATS, baseName, fmtSize, download, makeCanvas, fitCanvas } from "./lib/image.js?v=2";
 import { removeBackground, withBackground, trimToSubject } from "./lib/bg.js";
 
 const $ = (id) => document.getElementById(id);
@@ -152,7 +152,7 @@ $("bg-again").addEventListener("click", () => {
 // =====================================================================
 // FORMAT DÖNÜŞTÜRME
 // =====================================================================
-const cv = { items: [], fmt: "jpg", q: 0.95 };
+const cv = { items: [], fmt: "jpg", q: 0.95, size: 0 };
 let uid = 0;
 
 dropZone($("cv-drop"), $("cv-file"), cvAdd);
@@ -160,7 +160,8 @@ dropZone($("cv-drop"), $("cv-file"), cvAdd);
 const cvNotes = {
   jpg: "JPG her yerde açılır. Şeffaf alanlar beyaz olur.",
   png: "PNG kayıpsızdır ve şeffaflığı korur; dosya büyük olur.",
-  webp: "WebP hem kaliteli hem küçüktür, şeffaflığı korur. Bazı eski programlar açamaz.",
+  webp: "WebP hem kaliteli hem küçüktür, şeffaflığı korur. Web siteleri için çok uygun.",
+  avif: "AVIF en küçük dosyayı verir (JPG'nin yarısı kadar), şeffaflığı korur. Yeni telefon ve tarayıcılar açar; yavaş hazırlanır.",
 };
 segment($("cv-fmt"), "f", (f) => {
   cv.fmt = f;
@@ -169,6 +170,7 @@ segment($("cv-fmt"), "f", (f) => {
   cvStale();
 });
 $("cv-q").addEventListener("change", (e) => { cv.q = parseFloat(e.target.value); cvStale(); });
+$("cv-size").addEventListener("change", (e) => { cv.size = parseInt(e.target.value, 10); cvStale(); });
 
 function typeLabel(f) {
   const ext = (f.name.match(/\.([^.]+)$/) || [])[1];
@@ -199,7 +201,18 @@ function cvStale() {
   cvButtons();
 }
 
+function cvSummary() {
+  const done = cv.items.filter((x) => x.out);
+  const el = $("cv-sum");
+  if (!done.length) { el.classList.add("hidden"); return; }
+  const a = done.reduce((s, x) => s + x.file.size, 0), b = done.reduce((s, x) => s + x.out.blob.size, 0);
+  const pct = Math.round((1 - b / a) * 100);
+  el.textContent = `${done.length} fotoğraf: ${fmtSize(a)} → ${fmtSize(b)}${pct > 0 ? ` (%${pct} küçüldü)` : ""}`;
+  el.classList.remove("hidden");
+}
+
 function cvButtons() {
+  cvSummary();
   const any = cv.items.length > 0;
   const allDone = any && cv.items.every((x) => x.out);
   $("cv-actions").classList.toggle("hidden", !any);
@@ -240,14 +253,19 @@ $("cv-go").addEventListener("click", async () => {
       th.className = "thumb"; th.src = t.toDataURL("image/jpeg", 0.8); th.alt = "";
       it.li.querySelector(".thumb").replaceWith(th);
       // tam boy çiz ve kaydet
-      const c = makeCanvas(img.width, img.height);
-      c.getContext("2d").drawImage(img.bitmap, 0, 0);
+      const full = makeCanvas(img.width, img.height);
+      full.getContext("2d").drawImage(img.bitmap, 0, 0);
       img.bitmap.close?.();
+      const c = fitCanvas(full, cv.size);
+      if (cv.fmt === "avif") info.textContent = "AVIF hazırlanıyor… (biraz sürebilir)";
       const { blob, ext, fallback } = await encode(c, cv.fmt, cv.q);
-      c.width = c.height = 0;
+      const outW = c.width, outH = c.height;
+      c.width = c.height = 0; full.width = full.height = 0;
       it.out = { blob, name: `${baseName(it.file.name)}.${ext}` };
       const warn = [fallback ? "bu tarayıcı WebP yazamıyor, PNG yapıldı" : "", img.scaled ? "çok büyüktü, küçültüldü" : ""].filter(Boolean).join(" · ");
-      info.innerHTML = `${typeLabel(it.file)} ${fmtSize(it.file.size)} → <span class="ok">${ext.toUpperCase()} ${fmtSize(blob.size)}</span> · ${img.width}×${img.height}${warn ? ` · <span class="warn">${warn}</span>` : ""}`;
+      const pct = Math.round((1 - blob.size / it.file.size) * 100);
+      const gain = pct > 0 ? ` · %${pct} küçük` : pct < 0 ? ` · %${-pct} büyük` : "";
+      info.innerHTML = `${typeLabel(it.file)} ${fmtSize(it.file.size)} → <span class="ok">${ext.toUpperCase()} ${fmtSize(blob.size)}</span>${gain} · ${outW}×${outH}${warn ? ` · <span class="warn">${warn}</span>` : ""}`;
       it.li.querySelector(".dl").classList.remove("hidden");
     } catch (e) {
       console.error(e);
