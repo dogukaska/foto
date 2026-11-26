@@ -34,3 +34,5 @@ Yerelde denemek için: `python3 -m http.server` komutunu çalıştır, tarayıc�
 
 ## Lisanslar
 Model ve arka plan silme yöntemi [@imgly/background-removal](https://github.com/imgly/background-removal-js) projesinden alındı (AGPL-3.0). Bu yüzden proje AGPL-3.0 lisanslıdır (`LICENSE`). Kullanılan diğer kütüphaneler: [ONNX Runtime Web](https://github.com/microsoft/onnxruntime) (MIT), [heic-to](https://github.com/hoppergee/heic-to) / [libheif](https://github.com/strukturag/libheif) (LGPL-3.0), [JSZip](https://github.com/Stuk/jszip) (MIT). Modelin aslı: [DIS / ISNet](https://github.com/xuebinqin/DIS) (Apache-2.0).
+
+Fotoğraf küçültme ve görsel gizleme araçlarının geliştirme ve test çalışmalarında OpenAI Codex kullanıldı.
