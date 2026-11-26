@@ -101,6 +101,9 @@ $("file").addEventListener("change",async () => {
   bitmap = null;
   clearFaces();
   $("editor").hidden = true;
+  $("find-faces").hidden = true;
+  $("file-name").textContent = "";
+  $("file-label").textContent = "Görsel seç";
   $("status").textContent = "Görsel açılıyor…";
   try {
     if (file.size > 60 * 1024 * 1024) throw Error("60 MB’tan küçük bir görsel seç.");
@@ -111,6 +114,9 @@ $("file").addEventListener("change",async () => {
     crop = {x:0,y:0,w:result.width,h:result.height};
     masks = []; history = []; start = current = null;
     $("editor").hidden = false;
+    $("find-faces").hidden = false;
+    $("file-name").textContent = file.name;
+    $("file-label").textContent = "Görsel değiştir";
     $("status").textContent = crop.w+" × "+crop.h+" piksel";
     draw();
   } catch (e) { if (id===request) $("status").textContent = e.message || "Görsel açılamadı."; }

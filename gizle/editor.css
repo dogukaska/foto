@@ -1,0 +1,9 @@
+.edit-toolbar { margin-bottom: 7px; }
+.edit-toolbar #download { margin-left: auto; }
+.face-actions:has(button:not([hidden])) { margin-bottom: 7px; }
+#preview { touch-action: none; cursor: crosshair; border-radius: 7px; }
+#preview-hint { color: var(--mute); font-size: .8125rem; margin: 8px 0; }
+.position-controls { border-top: 1px solid var(--line); font-size: .875rem; }
+.position-controls summary { width: fit-content; padding-block: 8px; cursor: pointer; }
+.position-controls .row { margin-bottom: 8px; align-items: end; }
+.position-controls .row label { flex-basis: 75px; }
