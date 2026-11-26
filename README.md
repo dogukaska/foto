@@ -20,18 +20,6 @@ Tarayıcıda çalışan iki basit araç. Fotoğraflar hiçbir sunucuya yüklenme
 
 Not: Yeni dosyaya fotoğrafın konum/tarih bilgileri (EXIF) aktarılmaz. Fotoğrafın yönü doğru kalır.
 
-## Yayınlama
-Settings → Pages → Branch: `main` / `(root)` → Save.
-
-Yerelde denemek için: `python3 -m http.server` komutunu çalıştır, tarayıcıda `http://localhost:8000` adresini aç.
-
-## Dosyalar
-- `index.html`, `style.css`, `app.js`: arayüz
-- `lib/image.js`: fotoğraf açma (HEIC dahil) ve kaydetme
-- `lib/bg.js`, `lib/bg-worker.js`: arka plan silme
-- `model/`: ISNet modeli (4 MB'lık parçalar halinde)
-- `vendor/`: ONNX Runtime Web, heic-to (libheif), JSZip
-
 ## Lisanslar
 Model ve arka plan silme yöntemi [@imgly/background-removal](https://github.com/imgly/background-removal-js) projesinden alındı (AGPL-3.0). Bu yüzden proje AGPL-3.0 lisanslıdır (`LICENSE`). Kullanılan diğer kütüphaneler: [ONNX Runtime Web](https://github.com/microsoft/onnxruntime) (MIT), [heic-to](https://github.com/hoppergee/heic-to) / [libheif](https://github.com/strukturag/libheif) (LGPL-3.0), [JSZip](https://github.com/Stuk/jszip) (MIT). Modelin aslı: [DIS / ISNet](https://github.com/xuebinqin/DIS) (Apache-2.0).
 
