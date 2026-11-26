@@ -6,21 +6,44 @@
 <title>Görsel Gizle · Dijital Çakı</title>
 <meta name="theme-color" content="#efede8">
 <link rel="icon" href="/icons/dijital-caki.svg">
-<link rel="stylesheet" href="/tool.css?v=20261126b">
+<link rel="stylesheet" href="/tool.css?v=20261126d">
+<link rel="stylesheet" href="editor.css?v=1">
 <script src="/theme.js?v=20261126c"></script>
-<script type="module" src="app.js?v=2"></script>
+<script type="module" src="app.js?v=3"></script>
 </head>
 <body><main class="tool">
 <header><a class="back" href="/foto/">Araçlara dön</a>
-<h1>Görsel Gizle</h1><p class="intro">Hassas alanları bulanıklaştır veya tamamen kapat, ardından PNG indir.</p></header>
+<h1>Görsel Gizle</h1><p class="intro">Yüzleri veya özel bilgileri görünmez yap.</p></header>
 <section class="panel">
-<label for="file">Görsel seç</label><input id="file" type="file" accept="image/*,.heic,.heif"><p id="status" role="status"></p>
-<div id="editor" hidden><div class="row"><button id="redact" aria-pressed="false">Alanı kapat</button><button id="blur" aria-pressed="true">Bulanıklaştır</button><button id="crop" aria-pressed="false">Kırp</button>
-<button id="undo" disabled>Geri al</button><button id="download" class="primary" disabled>PNG indir</button></div>
-<div class="row"><button id="find-faces">Yüzleri bul</button><button id="blur-faces" hidden>Bulunan yüzleri bulanıklaştır</button><button id="clear-faces" hidden>Vazgeç</button></div>
-<p>Önizlemede bir dikdörtgen çiz. İstersen piksel koordinatlarını elle gir.</p>
-<canvas id="preview" style="touch-action:none;cursor:crosshair" aria-label="Görsel önizlemesi"></canvas>
+<div class="ui-file-line">
+  <input id="file" class="ui-hidden-input" type="file" accept="image/*,.heic,.heif">
+  <label id="file-label" class="button" for="file">Görsel seç</label>
+  <span id="file-name" class="file-name"></span>
+  <button id="find-faces" class="ui-quiet" type="button" hidden>Yüzleri bul</button>
+</div>
+<p id="status" role="status"></p>
+<div id="editor" hidden>
+<div class="ui-toolbar edit-toolbar">
+  <div class="ui-segmented" role="group" aria-label="Düzenleme aracı">
+    <button id="blur" aria-pressed="true" aria-label="Alanı bulanıklaştır">Bulanık</button>
+    <button id="redact" aria-pressed="false" aria-label="Alanı kapat">Kapat</button>
+    <button id="crop" aria-pressed="false">Kırp</button>
+  </div>
+  <button id="undo" class="ui-icon ui-quiet" aria-label="Geri al" title="Geri al" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 4 11l5 5m-5-5h10a5 5 0 0 1 0 10"/></svg>
+  </button>
+  <button id="download" class="primary" disabled>PNG indir</button>
+</div>
+<div class="ui-toolbar face-actions">
+  <button id="blur-faces" hidden>Yüzleri bulanıklaştır</button>
+  <button id="clear-faces" class="ui-quiet" hidden>Vazgeç</button>
+</div>
+<canvas id="preview" aria-label="Görsel önizlemesi" aria-describedby="preview-hint"></canvas>
+<p id="preview-hint">Alanı seçmek için görsel üzerinde sürükle.</p>
+<details class="position-controls">
+<summary>Piksel koordinatları</summary>
 <form id="rect" class="row"><label>X<input id="x" type="number" min="0" value="0" required></label><label>Y<input id="y" type="number" min="0" value="0" required></label>
 <label>Genişlik<input id="w" type="number" min="1" value="1" required></label><label>Yükseklik<input id="h" type="number" min="1" value="1" required></label>
-<button>Alanı uygula</button></form></div></section>
+<button>Alanı uygula</button></form>
+</details></div></section>
 </main></body></html>
