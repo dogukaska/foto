@@ -152,7 +152,7 @@ $("bg-again").addEventListener("click", () => {
 // =====================================================================
 // FORMAT DÖNÜŞTÜRME
 // =====================================================================
-const cv = { items: [], fmt: "jpg", q: 0.95, size: 0 };
+const cv = { items: [], fmt: "jpg", q: 0.95, size: 0, busy: false };
 let uid = 0;
 
 dropZone($("cv-drop"), $("cv-file"), cvAdd);
@@ -193,7 +193,8 @@ function cvAdd(files) {
 }
 
 function cvStale() {
-  for (const it of cv.items) if (it.out) {
+  for (const it of cv.items) {
+    it.failed = false;
     it.out = null;
     it.li.querySelector(".dl").classList.add("hidden");
     it.li.querySelector(".info").textContent = `${typeLabel(it.file)} · ${fmtSize(it.file.size)}`;
@@ -213,28 +214,35 @@ function cvSummary() {
 
 function cvButtons() {
   cvSummary();
-  const any = cv.items.length > 0;
-  const allDone = any && cv.items.every((x) => x.out);
-  $("cv-actions").classList.toggle("hidden", !any);
-  $("cv-go").classList.toggle("hidden", allDone);
-  $("cv-all").classList.toggle("hidden", !allDone);
-  $("cv-all").innerHTML = ICON_DL + (cv.items.length > 1 ? " Hepsini indir (ZIP)" : " İndir");
+  const done = cv.items.filter((x) => x.out).length;
+  const pending = cv.items.some((x) => !x.out);
+  $("cv-actions").classList.toggle("hidden", !cv.items.length && !cv.busy);
+  $("cv-go").classList.toggle("hidden", !pending && !cv.busy);
+  if (!cv.busy) $("cv-go").textContent = cv.items.some((x) => x.failed) ? "Kalanı yeniden dene" : "Dönüştür";
+  $("cv-all").classList.toggle("hidden", !done);
+  $("cv-all").innerHTML = ICON_DL + (done > 1 ? " Hazır olanları indir (ZIP)" : " Hazır olanı indir");
 }
 
 function uniqueNames(items) {
-  const seen = new Map();
+  const seen = new Set();
   for (const it of items) {
-    let n = it.out.name;
-    const k = n.toLocaleLowerCase("tr");
-    if (seen.has(k)) { const c = seen.get(k) + 1; seen.set(k, c); n = n.replace(/(\.[^.]+)$/, ` (${c})$1`); }
-    else seen.set(k, 1);
-    it.out.zipName = n;
+    let name = it.out.name;
+    let suffix = 2;
+    while (seen.has(name.toLowerCase())) {
+      name = it.out.name.replace(/(\.[^.]+)$/, ` (${suffix++})$1`);
+    }
+    seen.add(name.toLowerCase());
+    it.out.zipName = name;
   }
 }
 
 $("cv-go").addEventListener("click", async () => {
+  if (cv.busy) return;
   const go = $("cv-go");
-  go.disabled = true;
+  const controls = [go, $("cv-all"), $("cv-q"), $("cv-size"), ...$("cv-fmt").querySelectorAll("button")];
+  cv.busy = true;
+  controls.forEach((control) => { control.disabled = true; });
+  const { size, fmt, q } = cv;
   const todo = cv.items.filter((x) => !x.out);
   let i = 0;
   for (const it of todo) {
@@ -256,50 +264,63 @@ $("cv-go").addEventListener("click", async () => {
       const full = makeCanvas(img.width, img.height);
       full.getContext("2d").drawImage(img.bitmap, 0, 0);
       img.bitmap.close?.();
-      const c = fitCanvas(full, cv.size);
-      if (cv.fmt === "avif") info.textContent = "AVIF hazırlanıyor… (biraz sürebilir)";
-      const { blob, ext, fallback } = await encode(c, cv.fmt, cv.q);
+      const c = fitCanvas(full, size);
+      if (fmt === "avif") info.textContent = "AVIF hazırlanıyor… (biraz sürebilir)";
+      const { blob, ext, fallback } = await encode(c, fmt, q);
       const outW = c.width, outH = c.height;
       c.width = c.height = 0; full.width = full.height = 0;
       it.out = { blob, name: `${baseName(it.file.name)}.${ext}` };
+      it.failed = false;
       const warn = [fallback ? "bu tarayıcı WebP yazamıyor, PNG yapıldı" : "", img.scaled ? "çok büyüktü, küçültüldü" : ""].filter(Boolean).join(" · ");
       const pct = Math.round((1 - blob.size / it.file.size) * 100);
       const gain = pct > 0 ? ` · %${pct} küçük` : pct < 0 ? ` · %${-pct} büyük` : "";
-      info.innerHTML = `${typeLabel(it.file)} ${fmtSize(it.file.size)} → <span class="ok">${ext.toUpperCase()} ${fmtSize(blob.size)}</span>${gain} · ${outW}×${outH}${warn ? ` · <span class="warn">${warn}</span>` : ""}`;
+      const output = document.createElement("span");
+      output.className = "ok";
+      output.textContent = `${ext.toUpperCase()} ${fmtSize(blob.size)}`;
+      info.replaceChildren(`${typeLabel(it.file)} ${fmtSize(it.file.size)} → `, output, `${gain} · ${outW}×${outH}`);
+      if (warn) {
+        const warning = document.createElement("span");
+        warning.className = "warn";
+        warning.textContent = warn;
+        info.append(" · ", warning);
+      }
       it.li.querySelector(".dl").classList.remove("hidden");
     } catch (e) {
       console.error(e);
-      info.innerHTML = `<span class="err">Açılamadı: ${(e.message || "bilinmeyen dosya").replace(/[<>&]/g, "")}</span>`;
+      it.failed = true;
+      const error = document.createElement("span");
+      error.className = "err";
+      error.textContent = `Açılamadı: ${e.message || "Bilinmeyen dosya"}`;
+      info.replaceChildren(error);
     }
     await new Promise((r) => setTimeout(r, 0));
   }
-  go.disabled = false;
-  go.textContent = "Dönüştür";
-  // hatalı dosyalar listeden çıkmaz ama indirme düğmesine engel olmasın
-  const failed = cv.items.filter((x) => !x.out);
-  if (failed.length) failed.forEach((x) => { x.li.remove(); });
-  cv.items = cv.items.filter((x) => x.out);
+  cv.busy = false;
+  controls.forEach((control) => { control.disabled = false; });
   cvButtons();
-  if (failed.length) alert(`${failed.length} dosya açılamadı ve listeden çıkarıldı.`);
 });
 
 $("cv-all").addEventListener("click", async () => {
   const done = cv.items.filter((x) => x.out);
+  if (!done.length || cv.busy) return;
   if (done.length === 1) return download(done[0].out.blob, done[0].out.name);
   const btn = $("cv-all");
   btn.disabled = true;
   btn.textContent = "ZIP hazırlanıyor…";
+  const extension = FORMATS[cv.fmt].ext;
   try {
     uniqueNames(done);
     const zip = new window.JSZip();
     for (const it of done) zip.file(it.out.zipName, it.out.blob);
     const blob = await zip.generateAsync({ type: "blob", compression: "STORE" });
-    download(blob, `fotograflar-${FORMATS[cv.fmt].ext}.zip`);
-  } finally { btn.disabled = false; cvButtons(); }
+    download(blob, `fotograflar-${extension}.zip`);
+  } catch (e) {
+    alert("ZIP hazırlanamadı. Dosyaları tek tek indirmeyi dene.");
+  } finally { btn.disabled = cv.busy; cvButtons(); }
 });
 
 $("cv-clear").addEventListener("click", () => {
   cv.items = [];
-  $("cv-list").innerHTML = "";
+  $("cv-list").replaceChildren();
   cvButtons();
 });
