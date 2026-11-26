@@ -1,0 +1,1 @@
+Face detection model: [Ultra-Light-Fast-Generic-Face-Detector-1MB](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB), `models/onnx/version-RFB-320.onnx`, MIT license. The model is only used to locate face rectangles in the browser.
