@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Görsel Stüdyosu · Dijital Çakı</title>
+<link rel="icon" href="/icons/dijital-caki.svg">
+<link rel="stylesheet" href="/tool.css?v=20261126d">
+<link rel="stylesheet" href="/gunluk/style.css?v=1">
+<link rel="stylesheet" href="style.css?v=1">
+<script src="/theme.js?v=20261126c"></script>
+<script type="module" src="app.js?v=1"></script>
+</head>
+<body>
+<main class="tool daily">
+<header><a class="back" href="/#foto">Uygulamalar</a><h1 id="title">Görsel Stüdyosu</h1><p id="intro" class="intro"></p></header>
+<section class="panel">
+  <label for="file">JPG, PNG veya GIF seç</label><input id="file" type="file" accept=".jpg,.jpeg,.png,.gif">
+  <p id="file-selection" class="muted"></p>
+  <div id="watermark" hidden>
+    <div class="fields">
+      <label class="wide">Filigran metni<input id="text" maxlength="100" placeholder="Örn. Doğu"></label>
+      <label class="wide">Logo (isteğe bağlı)<input id="logo" type="file" accept=".jpg,.jpeg,.png"></label>
+      <label>Konum<select id="position">
+        <option value="tr">Sağ üst</option><option value="tl">Sol üst</option><option value="c">Orta</option>
+        <option value="br" selected>Sağ alt</option><option value="bl">Sol alt</option>
+      </select></label>
+      <label>Yazı tipi<select id="font"><option value="sans-serif">Düz</option><option value="serif">Tırnaklı</option><option value="monospace">Eş aralıklı</option></select></label>
+      <label>Boyut (%)<input id="size" type="number" min="5" max="75" value="20"></label>
+      <label>Opaklık (%)<input id="opacity" type="number" min="1" max="100" value="75"></label>
+    </div>
+  </div>
+  <div id="memes" hidden>
+    <label>Şablon<select id="template"><option value="classic">Klasik üst ve alt yazı</option><option value="expect">Beklenti ve gerçek</option><option value="choice">İki seçenek</option></select></label>
+    <div class="fields"><label>İlk yazı<input id="top" maxlength="120" value="PLAN BASİTTİ"></label><label>İkinci yazı<input id="bottom" maxlength="120" value="SONRA BİR ŞEY OLDU"></label></div>
+    <label id="second-setting" hidden>İkinci görsel (isteğe bağlı)<input id="second" type="file" accept=".jpg,.jpeg,.png"></label>
+  </div>
+</section>
+<section class="panel">
+  <canvas id="preview" class="canvas" role="img" aria-label="Görsel önizlemesi" hidden></canvas>
+  <p class="muted" id="frame-note" hidden>Önizleme ilk kareyi gösterir. İndirilen GIF hareketli kalır.</p>
+  <div class="row"><button id="download" class="primary" type="button" disabled>Görseli indir</button></div>
+  <p id="status" role="status"></p>
+</section>
+<p class="muted">Görseller cihazında işlenir.</p>
+</main>
+</body>
+</html>
