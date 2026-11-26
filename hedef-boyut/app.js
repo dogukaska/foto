@@ -1,4 +1,4 @@
-import {decode,encode,download,fitCanvas,makeCanvas,baseName} from "../lib/image.js?v=2";
+import {decode,encode,download,fitCanvas,makeCanvas,baseName} from "../lib/image.js?v=3";
 const $ = (id) => document.getElementById(id);
 let ready, previewUrl;
 function reset() {

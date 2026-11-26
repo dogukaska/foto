@@ -1,4 +1,4 @@
-import {decode,download,baseName} from "../lib/image.js?v=2";
+import {decode,download,baseName} from "../lib/image.js?v=3";
 const $ = (id) => document.getElementById(id);
 const canvas = $("preview");
 let bitmap, name, crop, masks = [], history = [], tool = "blur", start, current, request = 0;
@@ -12,7 +12,7 @@ function blurArea(target, ctx, box, sx, sy) {
   const bottom = Math.min(target.height,Math.ceil((box.y+box.h-crop.y)*sy));
   const w = right-x, h = bottom-y;
   if (w < 1 || h < 1) return;
-  const ratio = Math.min(1, 12/Math.max(w,h));
+  const ratio = Math.min(.25, 12/Math.max(w,h));
   sample.width = Math.max(1, Math.round(w*ratio));
   sample.height = Math.max(1, Math.round(h*ratio));
   const smooth = sample.getContext("2d");

@@ -1,4 +1,4 @@
-import { decode, encode, FORMATS, baseName, fmtSize, download, makeCanvas, fitCanvas } from "./lib/image.js?v=2";
+import { decode, encode, FORMATS, baseName, fmtSize, download, makeCanvas, fitCanvas } from "./lib/image.js?v=3";
 import { removeBackground, withBackground, trimToSubject } from "./lib/bg.js";
 
 const $ = (id) => document.getElementById(id);
@@ -106,7 +106,7 @@ async function bgStart(file) {
     bg.file = file;
     bg.cut = cut;
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    bg.info = `${img.width} × ${img.height} piksel · ${secs} sn${bg.scaled ? " · fotoğraf bu cihaz için çok büyüktü, küçültüldü" : ""}`;
+    bg.info = `${img.width} × ${img.height} piksel · ${secs} sn${img.scaled ? " · fotoğraf bu cihaz için çok büyüktü, küçültüldü" : ""}`;
     $("bg-work").classList.add("hidden");
     $("bg-result").classList.remove("hidden");
     bgRender();
@@ -134,8 +134,8 @@ function bgRender() {
   const max = 1600;
   const s = Math.min(1, max / Math.max(src.width, src.height));
   const cv = $("bg-canvas");
-  cv.width = Math.round(src.width * s);
-  cv.height = Math.round(src.height * s);
+  cv.width = Math.max(1, Math.round(src.width * s));
+  cv.height = Math.max(1, Math.round(src.height * s));
   const cx = cv.getContext("2d");
   cx.imageSmoothingQuality = "high";
   cx.clearRect(0, 0, cv.width, cv.height);
