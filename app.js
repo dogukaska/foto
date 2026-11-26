@@ -7,11 +7,31 @@ const ICON_DL = svg('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M20 1
 const ICON_X = svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
 
 // ---------- Sekmeler
-document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x === t));
+const tabs = [...document.querySelectorAll(".tab")];
+tabs.forEach((t) => t.addEventListener("click", () => {
+  for (const button of tabs) {
+    const selected = button === t;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-selected", selected);
+    button.tabIndex = selected ? 0 : -1;
+  }
   $("tab-bg").classList.toggle("hidden", t.dataset.tab !== "bg");
   $("tab-conv").classList.toggle("hidden", t.dataset.tab !== "conv");
 }));
+tabs[0].parentElement.addEventListener("keydown", (event) => {
+  const index = tabs.indexOf(event.target);
+  if (index < 0) return;
+  let next;
+  if (event.key === "Home") next = tabs[0];
+  else if (event.key === "End") next = tabs.at(-1);
+  else if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+  else if (event.key === "ArrowLeft") next = tabs[(index + tabs.length - 1) % tabs.length];
+  else return;
+  event.preventDefault();
+  next.focus();
+  next.click();
+});
+
 
 function segment(el, attr, onChange) {
   el.addEventListener("click", (e) => {
@@ -40,6 +60,7 @@ document.addEventListener("paste", (e) => {
 // ARKA PLAN SİLME
 // =====================================================================
 const bg = { file: null, bitmap: null, cut: null, color: "", fmt: "png", view: "after", trim: false };
+let bgRequest = 0;
 
 dropZone($("bg-drop"), $("bg-file"), (files) => bgStart(files[0]));
 
@@ -50,21 +71,23 @@ function bgStatus(text, frac, note) {
 }
 
 async function bgStart(file) {
+  const request = ++bgRequest;
   $("bg-drop").classList.add("hidden");
   $("bg-result").classList.add("hidden");
   $("bg-work").classList.remove("hidden");
+  $("bg-work").querySelector(".spinner").style.visibility = "";
   bgStatus("Fotoğraf açılıyor…", 0.02, "");
   bg.bitmap?.close?.();
-  bg.file = file; bg.cut = null;
+  bg.bitmap = null;
+  bg.cut = null;
+  let img;
   try {
-    const img = await decode(file);
-    bg.bitmap = img.bitmap;
-    bg.scaled = img.scaled;
+    img = await decode(file);
+    if (request !== bgRequest) return;
     const t0 = performance.now();
-    let firstModel = false;
-    bg.cut = await removeBackground(img.bitmap, (m) => {
+    const cut = await removeBackground(img.bitmap, (m) => {
+      if (request !== bgRequest) return;
       if (m.stage === "model") {
-        firstModel = true;
         bgStatus(`Yapay zeka modeli indiriliyor… %${Math.round(m.frac * 100)}`, 0.05 + m.frac * 0.6,
           "Yalnızca ilk kullanımda indirilir (88 MB). Sonraki seferlerde hazır olur.");
       } else if (m.stage === "prepare") {
@@ -75,16 +98,26 @@ async function bgStart(file) {
           : "İşlemci kullanılıyor, 10–30 saniye sürebilir.");
       }
     });
+    if (request !== bgRequest) {
+      cut.width = cut.height = 0;
+      return;
+    }
+    bg.bitmap = img.bitmap;
+    bg.file = file;
+    bg.cut = cut;
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     bg.info = `${img.width} × ${img.height} piksel · ${secs} sn${bg.scaled ? " · fotoğraf bu cihaz için çok büyüktü, küçültüldü" : ""}`;
     $("bg-work").classList.add("hidden");
     $("bg-result").classList.remove("hidden");
     bgRender();
   } catch (e) {
+    if (request !== bgRequest) return;
     console.error(e);
     bgStatus("Olmadı: " + (e.message || e), 0, "Başka bir fotoğraf deneyebilir ya da sayfayı yenileyebilirsin.");
     $("bg-work").querySelector(".spinner").style.visibility = "hidden";
     $("bg-drop").classList.remove("hidden");
+  } finally {
+    if (img?.bitmap !== bg.bitmap) img?.bitmap.close?.();
   }
 }
 
@@ -135,8 +168,9 @@ $("bg-download").addEventListener("click", async () => {
   btn.disabled = true;
   try {
     const out = bgFinal();
+    const name = baseName(bg.file.name);
     const { blob, ext, fallback } = await encode(out, bg.fmt, 0.97);
-    download(blob, `${baseName(bg.file.name)}-arkaplansiz.${ext}`);
+    download(blob, `${name}-arkaplansiz.${ext}`);
     if (fallback) alert("Bu tarayıcı WebP kaydedemiyor, PNG olarak indirildi.");
   } catch (e) {
     alert(e.message || e);
