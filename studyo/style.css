@@ -1,0 +1,3 @@
+#watermark, #memes { margin-top: 12px; }
+#memes > * + * { margin-top: 8px; }
+#preview { max-width: 560px; margin-inline: auto; }
