@@ -1,6 +1,6 @@
-.tool.image-share { max-width: 620px; }
-.image-share #file-info, .image-share #received-files { overflow-wrap: anywhere; }
-.image-share #received-files { list-style: none; padding-inline: 0; }
-.image-share #received-files li { min-width: 0; max-width: 100%; }
-.image-share #qr { inline-size: min(210px, 100%); margin-top: 10px; }
-.image-share #progress { inline-size: 100%; }
+.tool.file-share { max-width: 620px; }
+.file-share #file-info, .file-share #received-files { overflow-wrap: anywhere; }
+.file-share #received-files { list-style: none; padding-inline: 0; }
+.file-share #received-files li { min-width: 0; max-width: 100%; }
+.file-share #qr { inline-size: min(210px, 100%); margin-top: 10px; }
+.file-share #progress { inline-size: 100%; }

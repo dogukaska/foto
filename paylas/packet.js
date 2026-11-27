@@ -1,5 +1,4 @@
 const encoder = new TextEncoder(), decoder = new TextDecoder();
-const extensions = /\.(?:jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?)$/i;
 const mime = /^image\/(?:jpeg|png|gif|webp|avif|heic|heif|bmp|tiff)$/;
 const chunkSize = 2 * 1024 ** 2;
 const manifestLimit = 32 * 1024;
@@ -13,8 +12,9 @@ const mimeOf = type => typeof type === "string" && mime.test(type) ? type : "app
 const base64 = bytes => btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
 const importKey = bytes => crypto.subtle.importKey("raw", bytes, "AES-GCM", false, ["encrypt", "decrypt"]);
 
-function isImageName(name) {
-  return typeof name === "string" && name.length <= 255 && extensions.test(name) &&
+function isFileName(name) {
+  return typeof name === "string" && name.length > 0 && name.length <= 255 &&
+    name !== "." && name !== ".." &&
     !/[\/\\\u0000-\u001f\u007f]/.test(name);
 }
 
@@ -22,7 +22,7 @@ export function validFiles(files) {
   if (!Array.isArray(files) || !files.length || files.length > maxFiles) return false;
   let total = 0;
   for (const file of files) {
-    if (!isImageName(file?.name) || !Number.isInteger(file.size) || file.size < 1) return false;
+    if (!isFileName(file?.name) || !Number.isSafeInteger(file.size) || file.size < 0) return false;
     total += file.size;
   }
   return total <= maxSize;
@@ -41,7 +41,7 @@ function chunkCipher(key, nonce, operation) {
 }
 
 export async function seal(files, signal) {
-  if (!validFiles(files)) throw new Error("Geçerli görseller seç.");
+  if (!validFiles(files)) throw new Error("Geçerli dosyalar seç.");
   const raw = crypto.getRandomValues(new Uint8Array(32));
   const nonce = crypto.getRandomValues(new Uint8Array(8));
   const encrypt = chunkCipher(await importKey(raw), nonce, "encrypt");
@@ -84,7 +84,7 @@ function readChunks(reader, notify) {
         written += count;
         offset += count;
       }
-      if (written < length) throw new Error("Görsel aktarımı eksik kaldı.");
+      if (written < length) throw new Error("Dosya aktarımı eksik kaldı.");
       return output;
     },
     async rest() {
@@ -111,7 +111,7 @@ async function unsealLegacy(reader, key) {
     throw new Error("Geçersiz paylaşım dosyası.");
   }
   const file = JSON.parse(decoder.decode(new Uint8Array(plain, 4, length)));
-  if (!isImageName(file?.name)) throw new Error("Geçersiz görsel dosyası.");
+  if (!isFileName(file?.name)) throw new Error("Geçersiz paylaşım dosyası.");
   return [{ blob: new Blob([new Uint8Array(plain, 4 + length)], { type: mimeOf(file.type) }), name: file.name }];
 }
 
@@ -127,7 +127,7 @@ export async function unseal(stream, secret, version, notify) {
     if (!length || length > manifestLimit) throw new Error("Geçersiz paylaşım dosyası.");
     const decrypt = chunkCipher(key, header.subarray(0, 8), "decrypt");
     const files = JSON.parse(decoder.decode(await decrypt(await reader.exact(length + tagSize))));
-    if (!validFiles(files)) throw new Error("Geçersiz görsel dosyası.");
+    if (!validFiles(files)) throw new Error("Geçersiz paylaşım dosyası.");
     const result = [];
     for (const { name, size, type } of files) {
       const parts = [];

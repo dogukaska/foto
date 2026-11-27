@@ -1,4 +1,4 @@
-import { maxPacket, unseal } from "./packet.js?v=1";
+import { maxPacket, unseal } from "./packet.js?v=2";
 
 const endpoint = "https://tempfile.org";
 const keyFormat = /^[A-Za-z0-9_-]{43}$/;
@@ -12,7 +12,7 @@ export function validShare(id, secret, version) {
 export function upload(packet, hours, progress, signal) {
   if (signal.aborted) return Promise.reject(new DOMException("İptal edildi.", "AbortError"));
   const body = new FormData();
-  body.append("files", packet, "dijital-caki-gorsel.bin");
+  body.append("files", packet, "dijital-caki-dosya.bin");
   body.append("expiryHours", String(hours));
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -34,7 +34,7 @@ export function upload(packet, hours, progress, signal) {
       if (xhr.status === 429) return reject(new Error("Depolama hizmeti şu anda istek sınırına ulaştı. Biraz sonra dene."));
       if (xhr.status < 200 || xhr.status >= 300 || !xhr.response?.success ||
         !idFormat.test(file?.id ?? "") || file.size !== packet.size || !Number.isFinite(file.expiryTime)) {
-        return reject(new Error("Görsel yüklenemedi. Yeniden dene."));
+        return reject(new Error("Dosya yüklenemedi. Yeniden dene."));
       }
       resolve({ id: file.id, expires: file.expiryTime });
     });
@@ -46,8 +46,8 @@ export async function receive(id, secret, version, progress) {
   const response = await fetch(endpoint + "/" + id + "/download", { cache: "no-store", credentials: "omit" })
     .catch(() => { throw new Error("Depolama hizmetine ulaşılamadı. Yeniden dene."); });
   if (!response.ok) {
-    if (response.status === 404 || response.status === 410) throw new Error("Bu bağlantının süresi dolmuş veya görsel silinmiş.");
-    throw new Error("Görsel şu anda indirilemiyor. Yeniden dene.");
+    if (response.status === 404 || response.status === 410) throw new Error("Bu bağlantının süresi dolmuş veya dosya silinmiş.");
+    throw new Error("Dosya şu anda indirilemiyor. Yeniden dene.");
   }
   const length = Number(response.headers.get("Content-Length"));
   if (length > maxPacket) {
@@ -58,7 +58,7 @@ export async function receive(id, secret, version, progress) {
     return await unseal(response.body, secret, version, bytes => { if (length) progress(bytes, length); });
   } catch (error) {
     if (error.name !== "OperationError") throw error;
-    throw new Error("Görselin şifresi açılamadı. Paylaşım bağlantısının tamamını kullan.");
+    throw new Error("Dosyanın şifresi açılamadı. Paylaşım bağlantısının tamamını kullan.");
   }
 }
 

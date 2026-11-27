@@ -1,7 +1,7 @@
 import { $, download, element } from "/gunluk/common.js?v=1";
 import qrcode from "/qr/vendor/qrcode.mjs";
-import { erase, receive, upload, validShare } from "./transfer.js?v=3";
-import { maxFiles, maxSize, seal, validFiles } from "./packet.js?v=1";
+import { erase, receive, upload, validShare } from "./transfer.js?v=4";
+import { maxFiles, maxSize, seal, validFiles } from "./packet.js?v=2";
 
 const message = text => { if ($("status").textContent !== text) $("status").textContent = text; };
 const formatSize = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 1 });
@@ -31,26 +31,26 @@ function qrFor(url) {
 
 function setupSender() {
   $("sender").hidden = false;
-  const picture = $("picture"), expiry = $("expiry");
+  const input = $("files"), expiry = $("expiry");
   let files = [], controller, shared, deleting = false;
 
   function busy(active) {
-    picture.disabled = expiry.disabled = active;
+    input.disabled = expiry.disabled = active;
     $("start").disabled = active || !files.length;
     $("cancel").hidden = !active;
   }
 
-  picture.addEventListener("change", () => {
-    const chosen = [...picture.files];
+  input.addEventListener("change", () => {
+    const chosen = [...input.files];
     const total = chosen.reduce((sum, file) => sum + file.size, 0);
     files = validFiles(chosen) ? chosen : [];
     $("start").disabled = !files.length || deleting;
     $("file-info").hidden = !files.length;
     $("file-info").textContent = files.length === 1 ? files[0].name + " · " + sizeLabel(total) :
-      files.length + " görsel · " + sizeLabel(total);
+      files.length + " dosya · " + sizeLabel(total);
     if (total > maxSize) message("Bir paylaşım en fazla 100 MB olabilir.");
-    else if (chosen.length > maxFiles) message("Tek bağlantı için en fazla " + maxFiles + " görsel seç.");
-    else if (chosen.length && !files.length) message("Desteklenen ve boş olmayan görseller seç.");
+    else if (chosen.length > maxFiles) message("Tek bağlantı için en fazla " + maxFiles + " dosya seç.");
+    else if (chosen.length && !files.length) message("Dosya adlarını kontrol edip yeniden seç.");
     else message("");
   });
 
@@ -59,11 +59,11 @@ function setupSender() {
     controller = new AbortController();
     busy(true);
     $("share").hidden = true;
-    message("Görsel şifreleniyor…");
+    message("Dosyalar şifreleniyor…");
     try {
       const { packet, secret } = await seal(files, controller.signal);
       if (controller.signal.aborted) throw new DOMException("İptal edildi.", "AbortError");
-      message("Görsel yükleniyor…");
+      message("Dosyalar yükleniyor…");
       progress(0, 1);
       shared = await upload(packet, expiry.value, progress, controller.signal);
       const url = new URL(location.href);
@@ -110,17 +110,17 @@ function setupSender() {
     }
   });
   $("save-qr").addEventListener("click", () =>
-    $("qr").toBlob(blob => { if (blob) download(blob, "gorsel-paylasim-qr.png"); }, "image/png"));
+    $("qr").toBlob(blob => { if (blob) download(blob, "dosya-paylasim-qr.png"); }, "image/png"));
   if (navigator.share) {
     $("native-share").hidden = false;
     $("native-share").addEventListener("click", () =>
-      navigator.share({ title: "Orijinal görsel", url: $("link").value }).catch(() => {}));
+      navigator.share({ title: "Dosya Paylaşımı", url: $("link").value }).catch(() => {}));
   }
 }
 
 function setupReceiver() {
   $("receiver").hidden = false;
-  $("intro").textContent = "Gönderilen görselleri orijinal dosya olarak indir.";
+  $("intro").textContent = "Paylaşılan dosyaları indir.";
   const params = new URLSearchParams(location.hash.slice(1));
   const id = params.get("a"), secret = params.get("k"), version = params.get("v") ?? "1";
   if (!validShare(id, secret, version)) {
@@ -131,7 +131,7 @@ function setupReceiver() {
   let result;
   $("receive").addEventListener("click", async () => {
     $("receive").disabled = true;
-    message("Görsel alınıyor…");
+    message("Dosyalar alınıyor…");
     try {
       result = await receive(id, secret, version, progress);
       $("receive").hidden = true;
@@ -149,10 +149,10 @@ function setupReceiver() {
           row.append(button);
           list.append(row);
         }
-        message(result.length + " görsel · " + sizeLabel(result.reduce((sum, entry) => sum + entry.blob.size, 0)) + " hazır.");
+        message(result.length + " dosya · " + sizeLabel(result.reduce((sum, entry) => sum + entry.blob.size, 0)) + " hazır.");
       }
     } catch (error) {
-      message(error.message || "Görsel indirilemedi.");
+      message(error.message || "Dosya indirilemedi.");
     } finally {
       $("progress").hidden = true;
       $("receive").disabled = Boolean(result);
@@ -169,14 +169,20 @@ function setupReceiver() {
       const zip = await loadZip();
       const names = new Set();
       for (const { name, blob } of result) {
-        let candidate = name, number = 2;
-        while (names.has(candidate.toLowerCase())) candidate = name.replace(/\.[^.]+$/, ext => " (" + number++ + ")" + ext);
+        const dot = name.lastIndexOf(".");
+        const stem = dot > 0 ? name.slice(0, dot) : name;
+        const extension = dot > 0 ? name.slice(dot) : "";
+        let candidate = name;
+        let number = 2;
+        while (names.has(candidate.toLowerCase())) {
+          candidate = stem + " (" + number++ + ")" + extension;
+        }
         names.add(candidate.toLowerCase());
         zip.file(candidate, blob);
       }
-      download(await zip.generateAsync({ type: "blob", compression: "STORE", streamFiles: true }), "orijinal-gorseller.zip");
+      download(await zip.generateAsync({ type: "blob", compression: "STORE", streamFiles: true }), "paylasilan-dosyalar.zip");
       message("ZIP hazır.");
-    } catch { message("ZIP hazırlanamadı. Görselleri tek tek indirebilirsin."); }
+    } catch { message("ZIP hazırlanamadı. Dosyaları tek tek indirebilirsin."); }
     finally { $("save-zip").disabled = false; }
   });
 }
@@ -194,6 +200,6 @@ async function loadZip() {
   return new window.JSZip();
 }
 
-if (!crypto.subtle) message("Görsel paylaşımı için güncel bir tarayıcı ve HTTPS gerekli.");
+if (!crypto.subtle) message("Dosya paylaşımı için güncel bir tarayıcı ve HTTPS gerekli.");
 else if (location.hash) setupReceiver();
 else setupSender();
