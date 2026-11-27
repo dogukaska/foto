@@ -33,4 +33,4 @@ Görsele Filigran aracının geliştirilmesi ve GIF testleri OpenAI Codex deste�
 
 100 MB sınırı, çoklu görsel paylaşımı, parçalı AES‑GCM işleme ve ZIP indirme OpenAI Codex desteğiyle geliştirildi.
 
-Büyük gönderiler için [Dosya Paylaş](https://dogukaska.github.io/dosya/paylas/) üzerinden SwissTransfer bağlantısı sunulur. Dosya seçimi ve yükleme SwissTransfer sayfasında gerçekleşir.
+Büyük gönderiler için [Dosya Paylaş](https://dogukaska.github.io/dosya/paylas/) bir Plik sunucusu kullanır. Araçlar arasındaki bağlantı ve sunucu açıklaması OpenAI Codex desteğiyle güncellendi.
