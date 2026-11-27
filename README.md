@@ -28,3 +28,5 @@ Fotoğraf Araçları’nda AVIF ve boyut küçültme desteğine Claude, fotoğra
 Görsele Filigran, GIF karelerini okumak için [gifuct-js](https://github.com/matt-way/gifuct-js) ve çıktı için [gifenc](https://github.com/mattdesl/gifenc) kullanır.
 
 Görsele Filigran aracının geliştirilmesi ve GIF testleri OpenAI Codex desteğiyle yapıldı.
+
+[Orijinal Görsel Paylaş](https://dogukaska.github.io/foto/paylas/) 50 MB’a kadar görselleri yeniden kodlamadan, bağlantı ve QR ile kişisel paylaşım için aktarır. Dosya ve dosya adı önce tarayıcıda AES‑GCM ile şifrelenir. Şifreli dosya [TempFile.org](https://tempfile.org/api) üzerinden 1, 6, 24 veya 48 saat saklanır. Şifreleme anahtarı paylaşım URL’sinin tarayıcıya özel parçasında kalır. Uygulama ve aktarım testleri OpenAI Codex desteğiyle geliştirildi.
