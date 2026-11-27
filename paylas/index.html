@@ -4,17 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<title>Orijinal Görsel Paylaş · Dijital Çakı</title>
+<title>Görsel Paylaş · Dijital Çakı</title>
 <link rel="icon" href="/icons/dijital-caki.svg">
 <link rel="stylesheet" href="/tool.css?v=20261126d">
+<link rel="stylesheet" href="style.css?v=1">
 <script src="/theme.js?v=20261126c"></script>
 <script type="module" src="app.js?v=3"></script>
 </head>
 <body>
-<main class="tool" style="max-width: 620px">
+<main class="tool image-share">
 <header>
   <a class="back" href="/#foto">Uygulamalar</a>
-  <h1>Orijinal Görsel Paylaş</h1>
+  <h1>Görsel Paylaş</h1>
   <p class="intro" id="intro">Görselleri kalite kaybı olmadan tek bağlantı veya QR kodla gönder.</p>
 </header>
 <section id="sender" class="panel" hidden>
@@ -28,7 +29,7 @@
     <button id="cancel" type="button" hidden>İptal et</button>
   </div>
   <p class="intro">Kişisel paylaşımlar için. Görseller tarayıcıda şifrelenir ve geçici olarak TempFile.org’da saklanır.</p>
-  <p class="intro">Büyük dosyalar için <a href="https://www.swisstransfer.com/en" target="_blank" rel="noopener noreferrer">SwissTransfer’ı aç</a> · gönderi başına 50 GB</p>
+  <p class="intro">Büyük dosyalar için <a href="/dosya/paylas/">Dosya Paylaş</a> · gönderi başına 50 GB</p>
 </section>
 <section id="share" class="panel" hidden>
   <label for="link">Paylaşım bağlantısı</label>
@@ -40,17 +41,17 @@
     <button id="end" type="button">Bağlantıyı sil</button>
   </div>
   <p id="expires" class="intro"></p>
-  <canvas id="qr" role="img" aria-label="Paylaşım bağlantısının QR kodu" style="inline-size: min(210px, 100%); margin-top: 10px"></canvas>
+  <canvas id="qr" role="img" aria-label="Paylaşım bağlantısının QR kodu"></canvas>
 </section>
 <section id="receiver" class="panel" hidden>
   <button id="receive" type="button" class="primary">Görseli al</button>
   <button id="save" type="button" class="primary" hidden>Orijinal görseli indir</button>
   <button id="save-zip" type="button" class="primary" hidden>Tümünü ZIP olarak indir</button>
-  <ul id="received-files" class="row" hidden style="list-style: none; padding-inline: 0; overflow-wrap: anywhere"></ul>
+  <ul id="received-files" class="row" hidden></ul>
   <p class="intro">Dosyanın şifresi bu tarayıcıda açılır.</p>
 </section>
 <p id="status" role="status" aria-live="polite"></p>
-<progress id="progress" max="100" value="0" aria-label="Aktarım ilerlemesi" style="inline-size: 100%" hidden></progress>
+<progress id="progress" max="100" value="0" aria-label="Aktarım ilerlemesi" hidden></progress>
 <noscript>Görsel paylaşımı için JavaScript gerekli.</noscript>
 </main>
 </body>
