@@ -29,4 +29,8 @@ Görsele Filigran, GIF karelerini okumak için [gifuct-js](https://github.com/ma
 
 Görsele Filigran aracının geliştirilmesi ve GIF testleri OpenAI Codex desteğiyle yapıldı.
 
-[Orijinal Görsel Paylaş](https://dogukaska.github.io/foto/paylas/) 50 MB’a kadar görselleri yeniden kodlamadan, bağlantı ve QR ile kişisel paylaşım için aktarır. Dosya ve dosya adı önce tarayıcıda AES‑GCM ile şifrelenir. Şifreli dosya [TempFile.org](https://tempfile.org/api) üzerinden 1, 6, 24 veya 48 saat saklanır. Şifreleme anahtarı paylaşım URL’sinin tarayıcıya özel parçasında kalır. Uygulama ve aktarım testleri OpenAI Codex desteğiyle geliştirildi.
+[Görsel Paylaş](https://dogukaska.github.io/foto/paylas/) toplam 100 MB’a kadar görselleri yeniden kodlamadan, bağlantı ve QR ile kişisel paylaşım için aktarır. Bir bağlantıda en fazla 20 görsel paylaşılır. Alıcı dosyaları tek tek veya JSZip ile hazırlanmış tek bir ZIP olarak indirebilir. Dosyalar ve adları önce tarayıcıda AES‑GCM ile şifrelenir. Şifreli dosya [TempFile.org](https://tempfile.org/api) üzerinden 1, 6, 24 veya 48 saat saklanır. Şifreleme anahtarı paylaşım URL’sinin tarayıcıya özel parçasında kalır. Uygulama ve aktarım testleri OpenAI Codex desteğiyle geliştirildi.
+
+100 MB sınırı, çoklu görsel paylaşımı, parçalı AES‑GCM işleme ve ZIP indirme OpenAI Codex desteğiyle geliştirildi.
+
+Büyük gönderiler için [Dosya Paylaş](https://dogukaska.github.io/dosya/paylas/) üzerinden SwissTransfer bağlantısı sunulur. Dosya seçimi ve yükleme SwissTransfer sayfasında gerçekleşir.

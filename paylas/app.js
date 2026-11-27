@@ -1,11 +1,12 @@
-import { $, download } from "/gunluk/common.js?v=1";
+import { $, download, element } from "/gunluk/common.js?v=1";
 import qrcode from "/qr/vendor/qrcode.mjs";
-import { erase, isImageName, maxSize, receive, seal, upload, validShare } from "./transfer.js?v=2";
+import { erase, receive, upload, validShare } from "./transfer.js?v=3";
+import { maxFiles, maxSize, seal, validFiles } from "./packet.js?v=1";
 
 const message = text => { if ($("status").textContent !== text) $("status").textContent = text; };
 const formatSize = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 1 });
-const sizeLabel = size => size >= 1024 ** 2 ? formatSize.format(size / 1024 ** 2) + " MB" :
-  size >= 1024 ? formatSize.format(size / 1024) + " KB" : size + " bayt";
+const sizeLabel = size => size >= 1_000_000 ? formatSize.format(size / 1_000_000) + " MB" :
+  size >= 1000 ? formatSize.format(size / 1000) + " KB" : size + " bayt";
 const dateLabel = new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" });
 
 function progress(done, total) {
@@ -31,38 +32,43 @@ function qrFor(url) {
 function setupSender() {
   $("sender").hidden = false;
   const picture = $("picture"), expiry = $("expiry");
-  let file, controller, shared, deleting = false;
+  let files = [], controller, shared, deleting = false;
 
   function busy(active) {
     picture.disabled = expiry.disabled = active;
-    $("start").disabled = active || !file;
+    $("start").disabled = active || !files.length;
     $("cancel").hidden = !active;
   }
 
   picture.addEventListener("change", () => {
-    const chosen = picture.files[0];
-    file = chosen && isImageName(chosen.name) && chosen.size > 0 && chosen.size <= maxSize ? chosen : undefined;
-    $("start").disabled = !file || deleting;
-    $("file-info").hidden = !file;
-    $("file-info").textContent = file ? file.name + " · " + sizeLabel(file.size) : "";
-    message(file || !chosen ? "" : "En fazla 50 MB boyutunda desteklenen bir görsel seç.");
+    const chosen = [...picture.files];
+    const total = chosen.reduce((sum, file) => sum + file.size, 0);
+    files = validFiles(chosen) ? chosen : [];
+    $("start").disabled = !files.length || deleting;
+    $("file-info").hidden = !files.length;
+    $("file-info").textContent = files.length === 1 ? files[0].name + " · " + sizeLabel(total) :
+      files.length + " görsel · " + sizeLabel(total);
+    if (total > maxSize) message("Bir paylaşım en fazla 100 MB olabilir.");
+    else if (chosen.length > maxFiles) message("Tek bağlantı için en fazla " + maxFiles + " görsel seç.");
+    else if (chosen.length && !files.length) message("Desteklenen ve boş olmayan görseller seç.");
+    else message("");
   });
 
   $("start").addEventListener("click", async () => {
-    if (!file || controller || deleting) return;
+    if (!files.length || controller || deleting) return;
     controller = new AbortController();
     busy(true);
     $("share").hidden = true;
     message("Görsel şifreleniyor…");
     try {
-      const { packet, secret } = await seal(file);
+      const { packet, secret } = await seal(files, controller.signal);
       if (controller.signal.aborted) throw new DOMException("İptal edildi.", "AbortError");
       message("Görsel yükleniyor…");
       progress(0, 1);
       shared = await upload(packet, expiry.value, progress, controller.signal);
       const url = new URL(location.href);
       url.search = "";
-      url.hash = new URLSearchParams({ a: shared.id, k: secret });
+      url.hash = new URLSearchParams({ a: shared.id, k: secret, v: "2" });
       $("link").value = url.href;
       qrFor(url.href);
       $("expires").textContent = "Bitiş · " + dateLabel.format(shared.expires);
@@ -90,7 +96,7 @@ function setupSender() {
     } catch (error) { message(error.message || "Bağlantı silinemedi."); }
     finally {
       deleting = $("end").disabled = false;
-      $("start").disabled = !file;
+      $("start").disabled = !files.length;
     }
   });
   $("copy").addEventListener("click", async () => {
@@ -114,10 +120,10 @@ function setupSender() {
 
 function setupReceiver() {
   $("receiver").hidden = false;
-  $("intro").textContent = "Gönderilen görseli orijinal dosya olarak indir.";
+  $("intro").textContent = "Gönderilen görselleri orijinal dosya olarak indir.";
   const params = new URLSearchParams(location.hash.slice(1));
-  const id = params.get("a"), secret = params.get("k");
-  if (!validShare(id, secret)) {
+  const id = params.get("a"), secret = params.get("k"), version = params.get("v") ?? "1";
+  if (!validShare(id, secret, version)) {
     $("receive").disabled = true;
     message("Paylaşım bağlantısı eksik ya da geçersiz.");
     return;
@@ -127,10 +133,24 @@ function setupReceiver() {
     $("receive").disabled = true;
     message("Görsel alınıyor…");
     try {
-      result = await receive(id, secret, progress);
+      result = await receive(id, secret, version, progress);
       $("receive").hidden = true;
-      $("save").hidden = false;
-      message(result.name + " · " + sizeLabel(result.blob.size) + " hazır.");
+      if (result.length === 1) {
+        $("save").hidden = false;
+        message(result[0].name + " · " + sizeLabel(result[0].blob.size) + " hazır.");
+      } else {
+        $("save-zip").hidden = false;
+        const list = $("received-files");
+        list.hidden = false;
+        for (const { name, blob } of result) {
+          const button = element("button", name, { type: "button", "aria-label": name + " dosyasını indir" });
+          button.addEventListener("click", () => download(blob, name));
+          const row = element("li");
+          row.append(button);
+          list.append(row);
+        }
+        message(result.length + " görsel · " + sizeLabel(result.reduce((sum, entry) => sum + entry.blob.size, 0)) + " hazır.");
+      }
     } catch (error) {
       message(error.message || "Görsel indirilemedi.");
     } finally {
@@ -138,7 +158,40 @@ function setupReceiver() {
       $("receive").disabled = Boolean(result);
     }
   });
-  $("save").addEventListener("click", () => { if (result) download(result.blob, result.name); });
+  $("save").addEventListener("click", () => {
+    if (result?.length === 1) download(result[0].blob, result[0].name);
+  });
+  $("save-zip").addEventListener("click", async () => {
+    if (!result || $("save-zip").disabled) return;
+    $("save-zip").disabled = true;
+    message("ZIP hazırlanıyor…");
+    try {
+      const zip = await loadZip();
+      const names = new Set();
+      for (const { name, blob } of result) {
+        let candidate = name, number = 2;
+        while (names.has(candidate.toLowerCase())) candidate = name.replace(/\.[^.]+$/, ext => " (" + number++ + ")" + ext);
+        names.add(candidate.toLowerCase());
+        zip.file(candidate, blob);
+      }
+      download(await zip.generateAsync({ type: "blob", compression: "STORE", streamFiles: true }), "orijinal-gorseller.zip");
+      message("ZIP hazır.");
+    } catch { message("ZIP hazırlanamadı. Görselleri tek tek indirebilirsin."); }
+    finally { $("save-zip").disabled = false; }
+  });
+}
+
+async function loadZip() {
+  if (!window.JSZip) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "../vendor/jszip.min.js";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    });
+  }
+  return new window.JSZip();
 }
 
 if (!crypto.subtle) message("Görsel paylaşımı için güncel bir tarayıcı ve HTTPS gerekli.");
