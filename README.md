@@ -25,6 +25,6 @@ Model ve arka plan silme yöntemi [@imgly/background-removal](https://github.com
 
 Fotoğraf Araçları’nda AVIF ve boyut küçültme desteğine Claude, fotoğraf küçültme ve görsel gizleme araçlarının geliştirme ve test çalışmalarına OpenAI Codex katkıda bulundu.
 
-Görsele Filigran ve Meme Oluştur, GIF karelerini okumak için [gifuct-js](https://github.com/matt-way/gifuct-js) ve çıktı için [gifenc](https://github.com/mattdesl/gifenc) kullanır.
+Görsele Filigran, GIF karelerini okumak için [gifuct-js](https://github.com/matt-way/gifuct-js) ve çıktı için [gifenc](https://github.com/mattdesl/gifenc) kullanır.
 
-Görsele Filigran ve Meme Oluştur araçlarının geliştirilmesi ve GIF testleri OpenAI Codex desteğiyle yapıldı.
+Görsele Filigran aracının geliştirilmesi ve GIF testleri OpenAI Codex desteğiyle yapıldı.
