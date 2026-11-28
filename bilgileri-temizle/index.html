@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fotoğraf Bilgilerini Temizle · Dijital Çakı</title>
+<link rel="icon" href="/icons/dijital-caki.svg">
+<link rel="stylesheet" href="/tool.css?v=20261126d">
+<link rel="stylesheet" href="/gunluk/style.css?v=1">
+<link rel="stylesheet" href="./style.css?v=1">
+<script src="/theme.js?v=20261126c"></script>
+<script type="module" src="./app.js?v=1"></script>
+</head>
+<body>
+<main class="tool daily photo-info">
+  <header>
+    <a class="back" href="/#foto">Uygulamalar</a>
+    <h1>Fotoğraf Bilgilerini Temizle</h1>
+    <p class="intro">JPG’nin EXIF bilgilerini gör ve seçtiklerini yeniden sıkıştırmadan kaldır.</p>
+  </header>
+  <section class="panel">
+    <label for="file">JPG veya JPEG seç</label>
+    <input id="file" type="file" accept="image/jpeg,.jpg,.jpeg">
+  </section>
+  <section id="result" class="panel" hidden>
+    <dl id="metadata" class="metadata">
+      <div><dt>Konum</dt><dd id="gps-value"></dd></div>
+      <div><dt>Çekim tarihi</dt><dd id="date-value"></dd></div>
+      <div><dt>Cihaz</dt><dd id="device-value"></dd></div>
+    </dl>
+    <fieldset class="fields">
+      <legend>Kaldırılacak EXIF alanları</legend>
+      <label class="check"><input id="gps" type="checkbox" checked> Konum</label>
+      <label class="check"><input id="date" type="checkbox" checked> Çekim tarihi</label>
+      <label class="check"><input id="device" type="checkbox" checked> Cihaz bilgisi</label>
+    </fieldset>
+    <p class="muted">Temiz kopyadan XMP, IPTC, yorum, üretici notu ve gömülü önizlemeler de çıkarılır. Görüntünün yönü ve renk profili korunur.</p>
+    <div class="row"><button id="download" class="primary" type="button" disabled>Temiz JPG’yi indir</button></div>
+  </section>
+  <p id="status" role="status"></p>
+</main>
+</body>
+</html>

@@ -34,3 +34,7 @@ Görsele Filigran aracının geliştirilmesi ve GIF testleri OpenAI Codex deste�
 100 MB sınırı, farklı dosya türleriyle çoklu paylaşım, parçalı AES‑GCM işleme ve ZIP indirme OpenAI Codex desteğiyle geliştirildi.
 
 Fotoğraf Baskı Boyutu ve fotoğrafın özgün piksel ölçülerini okuma özelliği OpenAI Codex desteğiyle eklendi.
+
+[Fotoğraf Bilgilerini Temizle](https://dogukaska.github.io/foto/bilgileri-temizle/) JPG’deki standart EXIF konum, tarih ve cihaz bilgilerini gösterir. Seçilen alanlar yeniden sıkıştırma olmadan temizlenir. Temiz kopyada EXIF yönü ve ICC renk profili korunur. JPEG’in ana görüntüsüne ekli XMP, IPTC, üretici notu, yorum ve önizleme verileri çıkarılır.
+
+[Fotoğrafları Birleştir](https://dogukaska.github.io/foto/birlestir/) fotoğrafları yan yana, alt alta veya ızgarada düzenler ve JPG ya da PNG üretir. İki araç da tarayıcıda çalışır. Geliştirme ve testler OpenAI Codex desteğiyle yapıldı.

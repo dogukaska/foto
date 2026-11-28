@@ -1,0 +1,19 @@
+.photo-info .metadata { margin: 0; }
+.photo-info .metadata > div {
+  display: grid;
+  grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: .875rem;
+}
+.photo-info .metadata dd { margin: 0; overflow-wrap: anywhere; }
+.photo-info fieldset { min-inline-size: 0; margin: 14px 0 0; border: 0; padding: 0; }
+.photo-info legend { padding: 0; font-size: .875rem; font-weight: 650; }
+@media (min-width: 520px) {
+  .photo-info fieldset.fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 370px) {
+  .photo-info .metadata > div { grid-template-columns: minmax(0, 6rem) minmax(0, 1fr); }
+}

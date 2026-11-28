@@ -1,0 +1,21 @@
+.collage .fields { align-items: end; }
+.collage .fields label { overflow-wrap: anywhere; }
+.collage .fields :is(input, select) { box-sizing: border-box; min-inline-size: 0; max-inline-size: 100%; }
+.collage #images li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.collage .image-name { font-size: .875rem; overflow-wrap: anywhere; }
+.collage .image-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.collage .image-actions button { min-inline-size: 34px; }
+.collage #preview {
+  display: block;
+  max-width: 100%;
+  max-height: 65vh;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: repeating-conic-gradient(var(--glass) 0% 25%, var(--line) 0% 50%) 0 0 / 16px 16px;
+}
+@media (max-width: 375px) {
+  .collage .fields { grid-template-columns: minmax(0, 1fr); }
+}
